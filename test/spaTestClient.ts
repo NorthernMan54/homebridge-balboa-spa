@@ -332,4 +332,25 @@ export class SpaTestClient {
     prettify(message: Uint8Array) {
         return Buffer.from(message).toString('hex').match(/.{1,2}/g);
     }
+
+    shutdownSpaConnection() {
+        // Might already be disconnected, if we're in a repeat error situation.
+        this.isCurrentlyConnectedToSpa = false;
+        console.log("Shutting down Spa socket");
+        if (this.faultCheckIntervalId) {
+            clearInterval(this.faultCheckIntervalId);
+            this.faultCheckIntervalId = undefined;
+        }
+        if (this.stateUpdateCheckIntervalId) {
+            clearInterval(this.stateUpdateCheckIntervalId);
+            this.stateUpdateCheckIntervalId = undefined;
+        }
+        // Not sure I understand enough about these sockets to be sure
+        // of best way to clean them up.
+        if (this.socket != undefined) {
+            this.socket.end();
+            this.socket.destroy();
+            this.socket = undefined;
+        }
+    }
 }
